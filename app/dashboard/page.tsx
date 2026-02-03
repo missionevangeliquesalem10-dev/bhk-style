@@ -71,13 +71,14 @@ export default function Dashboard() {
       // Écoute des voitures
       const qCars = query(collection(db, "cars"), where("ownerId", "==", user.uid));
       const unsubCars = onSnapshot(qCars, (snap) => {
-        setCars(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+        setCars(snap.docs.map((d) => ({ id: d.id, ...(d.data() as any) })));
       });
 
       // Écoute des réservations + Calcul des Revenus
       const qBookings = query(collection(db, "bookings"), where("ownerId", "==", user.uid));
       const unsubBookings = onSnapshot(qBookings, (snap) => {
-        const bookingsData = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        // CORRECTION ICI : Ajout de (d.data() as any) pour le champ 'status'
+        const bookingsData = snap.docs.map((d) => ({ id: d.id, ...(d.data() as any) }));
         setBookings(bookingsData);
 
         // LOGIQUE FINANCIÈRE : On calcule uniquement les réservations "Confirmées"
@@ -92,7 +93,7 @@ export default function Dashboard() {
 
         snap.docChanges().forEach((change) => {
           if (change.type === "added" && !loading) {
-            const data = change.doc.data();
+            const data = change.doc.data() as any; // CORRECTION ICI
             if (data.status === "En attente") {
               toast.success(`Nouvelle demande : ${data.carName}`, { icon: '🚗' });
             }
@@ -107,7 +108,7 @@ export default function Dashboard() {
         orderBy("updatedAt", "desc")
       );
       const unsubChats = onSnapshot(qChats, (snap) => {
-        setChats(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+        setChats(snap.docs.map((d) => ({ id: d.id, ...(d.data() as any) })));
         setLoading(false);
       });
 
