@@ -24,6 +24,13 @@ export default function Home() {
   const [jours, setJours] = useState(15);
   const [prixSimule, setPrixSimule] = useState(35000);
 
+  // LISTE DES COMMUNES
+  const communes = [
+    "Toutes", "Abobo", "Adjamé", "Attécoubé", "Bingerville", "Cocody", 
+    "Koumassi", "Marcory", "Plateau", "Port-Bouët", "Songon", 
+    "Treichville", "Yopougon", "Anyama"
+  ];
+
   useEffect(() => {
     // 1. Charger les voitures
     const fetchTopCars = async () => {
@@ -147,7 +154,9 @@ export default function Home() {
               <div className="flex flex-col text-left flex-1">
                 <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest">Localisation</label>
                 <select value={searchLocation} onChange={(e) => setSearchLocation(e.target.value)} className="bg-transparent text-sm font-black uppercase text-slate-900 outline-none appearance-none cursor-pointer">
-                  <option>Toutes</option><option>Cocody</option><option>Marcory</option><option>Plateau</option>
+                  {communes.map((commune) => (
+                    <option key={commune} value={commune}>{commune}</option>
+                  ))}
                 </select>
               </div>
             </div>

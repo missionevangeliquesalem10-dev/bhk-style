@@ -5,21 +5,32 @@ import { collection, addDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { CldUploadWidget } from 'next-cloudinary';
-import { Car, MapPin, Fuel, Gauge, Image as ImageIcon, Check, ArrowLeft, Lock, Plus, Trash2 } from 'lucide-react';
+import { Car, MapPin, Fuel, Gauge, Image as ImageIcon, Check, ArrowLeft, Lock, Plus, Trash2, Layers } from 'lucide-react';
 
 export default function AjouterVoiture() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   
-  // État pour les images (1 principale + galerie)
   const [imageUrl, setImageUrl] = useState("");
   const [galleryUrls, setGalleryUrls] = useState<string[]>([]);
+
+  // LISTE DES COMMUNES COMPLÈTE
+  const communes = [
+    "Abobo", "Adjamé", "Attécoubé", "Bingerville", "Cocody", "Koumassi", 
+    "Marcory", "Plateau", "Port-Bouët", "Songon", "Treichville", "Yopougon", "Anyama"
+  ];
+
+  // LISTE DES CATÉGORIES
+  const categories = [
+    "Berline", "Suv/4x4", "Citadine", "Van/Minibus", "Pick-up", "Coupé / Sport", "Utilitaire"
+  ];
 
   const [carData, setCarData] = useState({
     name: '',
     brand: '',
     price: '',
     location: 'Cocody',
+    category: 'Berline', // Nouvelle catégorie par défaut
     exactAddress: '',
     transmission: 'Automatique',
     fuel: 'Essence',
@@ -46,8 +57,8 @@ export default function AjouterVoiture() {
       await addDoc(collection(db, "cars"), {
         ...carData,
         price: Number(carData.price),
-        image: imageUrl, // Photo pour le catalogue
-        gallery: galleryUrls, // Photos pour la page réservation
+        image: imageUrl,
+        gallery: galleryUrls,
         ownerId: user.uid,
         createdAt: new Date().toISOString(),
         isValidated: false, 
@@ -81,9 +92,7 @@ export default function AjouterVoiture() {
 
         <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-16">
           
-          {/* SECTION IMAGES */}
           <div className="space-y-8">
-            {/* PHOTO PRINCIPALE (CATALOGUE) */}
             <div className="space-y-3">
               <label className="text-[10px] text-blue-600 font-black uppercase tracking-widest block">Photo de couverture (Catalogue)</label>
               <CldUploadWidget 
@@ -108,18 +117,13 @@ export default function AjouterVoiture() {
               </CldUploadWidget>
             </div>
 
-            {/* GALERIE (RÉSERVATION) */}
             <div className="space-y-3">
               <label className="text-[10px] text-slate-900 font-black uppercase tracking-widest block">Galerie détaillée ({galleryUrls.length}/4 photos)</label>
               <div className="grid grid-cols-2 gap-4">
                 {galleryUrls.map((url, index) => (
                   <div key={index} className="relative aspect-square rounded-[1.5rem] overflow-hidden group border border-slate-100 shadow-sm">
                     <img src={url} className="w-full h-full object-cover" />
-                    <button 
-                      type="button"
-                      onClick={() => removeGalleryImage(index)}
-                      className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
+                    <button type="button" onClick={() => removeGalleryImage(index)} className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
                       <Trash2 size={12} />
                     </button>
                   </div>
@@ -131,10 +135,7 @@ export default function AjouterVoiture() {
                     onSuccess={(result: any) => setGalleryUrls([...galleryUrls, result.info.secure_url])}
                   >
                     {({ open }) => (
-                      <div 
-                        onClick={() => open()}
-                        className="aspect-square rounded-[1.5rem] border-2 border-dashed border-gray-200 bg-slate-50 flex flex-col items-center justify-center cursor-pointer hover:bg-white hover:border-blue-400 transition-all"
-                      >
+                      <div onClick={() => open()} className="aspect-square rounded-[1.5rem] border-2 border-dashed border-gray-200 bg-slate-50 flex flex-col items-center justify-center cursor-pointer hover:bg-white hover:border-blue-400 transition-all">
                         <Plus size={24} className="text-gray-300 mb-1" />
                         <span className="text-[8px] font-black text-gray-400 uppercase tracking-tighter">Ajouter</span>
                       </div>
@@ -154,7 +155,6 @@ export default function AjouterVoiture() {
             </div>
           </div>
 
-          {/* SECTION DÉTAILS */}
           <div className="space-y-5">
             <div className="space-y-4">
               <div className="bg-gray-50 p-5 rounded-[1.5rem] border border-gray-100">
@@ -165,6 +165,20 @@ export default function AjouterVoiture() {
                   onChange={(e) => setCarData({...carData, name: e.target.value})}
                   required
                 />
+              </div>
+
+              {/* NOUVEAU : SÉLECTEUR DE CATÉGORIE */}
+              <div className="bg-gray-50 p-5 rounded-[1.5rem] border border-gray-100">
+                <label className="text-[9px] text-gray-400 font-black uppercase mb-1 block tracking-widest flex items-center gap-2">
+                  <Layers size={10} /> Catégorie de véhicule
+                </label>
+                <select 
+                  className="bg-transparent w-full outline-none text-slate-900 font-bold appearance-none cursor-pointer"
+                  onChange={(e) => setCarData({...carData, category: e.target.value})}
+                  value={carData.category}
+                >
+                  {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                </select>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -182,12 +196,9 @@ export default function AjouterVoiture() {
                   <select 
                     className="bg-transparent w-full outline-none text-slate-900 font-bold appearance-none cursor-pointer"
                     onChange={(e) => setCarData({...carData, location: e.target.value})}
+                    value={carData.location}
                   >
-                    <option>Cocody</option>
-                    <option>Marcory</option>
-                    <option>Plateau</option>
-                    <option>Angré</option>
-                    <option>Riviera</option>
+                    {communes.map(commune => <option key={commune} value={commune}>{commune}</option>)}
                   </select>
                 </div>
               </div>

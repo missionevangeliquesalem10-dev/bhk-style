@@ -44,7 +44,7 @@ const Navbar = () => {
             <div className="bg-blue-600 p-2 rounded-xl shadow-lg shadow-blue-200 group-hover:scale-110 transition-transform">
               <Car className="text-white" size={20} />
             </div>
-            <span className="text-2xl font-black text-slate-900 tracking-tighter italic">WOTRO</span>
+            <span className="text-2xl font-black text-slate-900 tracking-tighter italic">BHK_DRIVE</span>
           </Link>
 
           {/* Menu Desktop Central */}
@@ -52,7 +52,7 @@ const Navbar = () => {
             <Link href="/catalogue" className="hover:text-blue-600 transition-colors">Catalogue</Link>
             {user && (
               <Link href="/mes-locations" className="flex items-center gap-2 text-blue-600 font-black italic">
-                <CalendarDays size={14} /> Mes Locations
+                 Mes Locations
               </Link>
             )}
             <Link href="/devenir-hote" className="text-orange-500 hover:text-orange-600 transition-all">Devenir Hôte</Link>
