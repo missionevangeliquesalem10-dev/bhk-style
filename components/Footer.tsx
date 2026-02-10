@@ -26,7 +26,7 @@ const Footer = () => {
               <div className="bg-white p-2 rounded-xl shadow-lg">
                 <Car className="text-orange-600" size={20} />
               </div>
-              <span className="text-2xl font-black text-white tracking-tighter italic">WOTRO</span>
+              <span className="text-2xl font-black text-white tracking-tighter italic">BHK_DRIVE</span>
             </Link>
             <p className="text-orange-50 font-medium text-sm leading-relaxed opacity-90">
               La première plateforme de location de voitures de luxe et de confort entre particuliers à Abidjan.
@@ -74,7 +74,7 @@ const Footer = () => {
         {/* COPYRIGHT */}
         <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-center">
           <p className="text-[9px] font-black text-white/60 uppercase tracking-widest">
-            © 2026 WOTRO TECHNOLOGIES. FAIT AVEC ❤️ À ABIDJAN.
+            © 2026 BOLOU-HK TECHNOLOGIES.
           </p>
           <div className="flex gap-6 text-[9px] font-black text-white/60 uppercase tracking-widest">
             <span className="italic hover:text-white transition-colors cursor-pointer">Support 24/7</span>
