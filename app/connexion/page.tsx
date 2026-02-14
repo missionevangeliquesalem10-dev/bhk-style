@@ -30,22 +30,33 @@ export default function Connexion() {
     setError("");
 
     try {
-      // 1. Connexion Firebase Auth
+      // 1️⃣ Connexion Firebase Auth
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // 2. Vérification du rôle pour rediriger au bon endroit
-      const userSnap = await getDoc(doc(db, "users", user.uid));
-      
-      if (userSnap.exists()) {
-        const data = userSnap.data();
-        if (data.role === "vendeur") {
+      if (!user) {
+        setError("Impossible de récupérer l'utilisateur.");
+        setLoading(false);
+        return;
+      }
+
+      // 2️⃣ Lecture du rôle depuis le sous-document public
+      const publicRef = doc(db, "users", user.uid, "public", "info");
+      const publicSnap = await getDoc(publicRef);
+
+      if (publicSnap.exists()) {
+        const data = publicSnap.data();
+        const role = data.role || "";
+
+        // Redirection selon le rôle
+        if (role === "vendeur") {
           router.push("/dashboard");
         } else {
-          router.push("/profil"); // Redirection vers le profil pour vérifier les docs
+          router.push("/profil");
         }
       } else {
-        router.push("/");
+        // Si le sous-document public n'existe pas
+        router.push("/profil");
       }
 
     } catch (err: any) {
@@ -58,7 +69,6 @@ export default function Connexion() {
 
   return (
     <div className="min-h-screen bg-white flex flex-col justify-center items-center px-6 py-12">
-      
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -127,7 +137,7 @@ export default function Connexion() {
 
         <div className="pt-6 border-t border-slate-50 flex flex-col items-center gap-4">
           <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">
-            Nouveau sur Wotro ? <Link href="/inscription-client" className="text-blue-600 hover:underline">Créer un compte</Link>
+            Nouveau sur BHK_DRIVE ? <Link href="/inscription-client" className="text-blue-600 hover:underline">Créer un compte</Link>
           </p>
           
           <div className="flex items-center gap-2 text-[8px] font-black uppercase text-slate-300 tracking-widest">

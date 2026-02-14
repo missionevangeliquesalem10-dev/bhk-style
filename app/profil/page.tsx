@@ -55,7 +55,7 @@ export default function Profil() {
     const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
 
     if (!cloudName || !uploadPreset) {
-      console.error("Variables Cloudinary manquantes dans le .env");
+      console.error("Variables Cloudinary manquantes");
       return;
     }
 
@@ -74,13 +74,15 @@ export default function Profil() {
       const data = await res.json();
 
       if (data.secure_url) {
+        // MODIFICATION : On passe isVerified à "oui" directement pour l'automatisation
         await updateDoc(doc(db, "users", auth.currentUser.uid), {
           [`docs.${type}`]: data.secure_url,
-          isVerified: "en_attente"
+          isVerified: "oui" 
         });
 
         setUserData((prev: any) => ({
           ...prev,
+          isVerified: "oui", // Mise à jour immédiate de l'interface
           docs: { ...prev?.docs, [type]: data.secure_url }
         }));
       }

@@ -55,7 +55,7 @@ const Footer = () => {
             <h4 className="text-xs font-black uppercase tracking-[0.2em] mb-8 opacity-70">Légal</h4>
             <ul className="space-y-4">
               <li><Link href="#" className="text-sm font-bold hover:opacity-100 opacity-80">Conditions Générales</Link></li>
-              <li><Link href="#" className="text-sm font-bold hover:opacity-100 opacity-80">Assurance Wotro</Link></li>
+              <li><Link href="#" className="text-sm font-bold hover:opacity-100 opacity-80">Assurance BHK_DRIVE</Link></li>
               <li><Link href="#" className="text-sm font-bold hover:opacity-100 opacity-80">Confidentialité</Link></li>
             </ul>
           </div>
@@ -66,7 +66,7 @@ const Footer = () => {
             <ul className="space-y-4 font-bold text-sm">
               <li className="flex items-center gap-3"><MapPin size={16} className="text-orange-200" /> Abidjan, Côte d'Ivoire</li>
               <li className="flex items-center gap-3"><Phone size={16} className="text-orange-200" /> +225 07 00 00 00 00</li>
-              <li className="flex items-center gap-3"><Mail size={16} className="text-orange-200" /> hello@wotro.ci</li>
+              <li className="flex items-center gap-3"><Mail size={16} className="text-orange-200" /> info@bhk_drive.ci</li>
             </ul>
           </div>
         </div>

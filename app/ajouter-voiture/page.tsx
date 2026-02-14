@@ -20,9 +20,9 @@ export default function AjouterVoiture() {
     "Marcory", "Plateau", "Port-Bouët", "Songon", "Treichville", "Yopougon", "Anyama"
   ];
 
-  // LISTE DES CATÉGORIES
+  // LISTE DES CATÉGORIES MISE À JOUR
   const categories = [
-    "Berline", "Suv/4x4", "Citadine", "Van/Minibus", "Pick-up", "Coupé / Sport", "Utilitaire"
+    "Voiture de luxe", "Berline", "Suv/4x4", "Citadine", "Van/Minibus", "Pick-up", "Coupé / Sport", "Utilitaire"
   ];
 
   const [carData, setCarData] = useState({
@@ -30,7 +30,7 @@ export default function AjouterVoiture() {
     brand: '',
     price: '',
     location: 'Cocody',
-    category: 'Berline', // Nouvelle catégorie par défaut
+    category: 'Berline', 
     exactAddress: '',
     transmission: 'Automatique',
     fuel: 'Essence',
@@ -54,6 +54,7 @@ export default function AjouterVoiture() {
       const user = auth.currentUser;
       if (!user) throw new Error("Vous devez être connecté.");
 
+      // PUBLICATION AUTOMATIQUE DIRECTE
       await addDoc(collection(db, "cars"), {
         ...carData,
         price: Number(carData.price),
@@ -61,8 +62,8 @@ export default function AjouterVoiture() {
         gallery: galleryUrls,
         ownerId: user.uid,
         createdAt: new Date().toISOString(),
-        isValidated: false, 
-        priorityScore: 0,
+        isValidated: true,    // ✅ Activé par défaut pour affichage immédiat
+        priorityScore: 5,     // ✅ Score pour le classement initial
         isAvailable: true 
       });
 
@@ -88,13 +89,14 @@ export default function AjouterVoiture() {
         <h1 className="text-4xl font-black text-slate-900 mb-2 uppercase italic tracking-tighter">
           Ajouter un <span className="text-blue-600">Véhicule</span>
         </h1>
-        <p className="text-gray-500 mb-12 font-medium">Configurez votre annonce et vos photos.</p>
+        <p className="text-gray-500 mb-12 font-medium italic">L'annonce sera publiée instantanément sur Wotro.</p>
 
         <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-16">
           
+          {/* COLONNE IMAGES */}
           <div className="space-y-8">
             <div className="space-y-3">
-              <label className="text-[10px] text-blue-600 font-black uppercase tracking-widest block">Photo de couverture (Catalogue)</label>
+              <label className="text-[10px] text-blue-600 font-black uppercase tracking-widest block italic">Photo de couverture (Catalogue)</label>
               <CldUploadWidget 
                 uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET}
                 onSuccess={(result: any) => setImageUrl(result.info.secure_url)}
@@ -118,11 +120,11 @@ export default function AjouterVoiture() {
             </div>
 
             <div className="space-y-3">
-              <label className="text-[10px] text-slate-900 font-black uppercase tracking-widest block">Galerie détaillée ({galleryUrls.length}/4 photos)</label>
+              <label className="text-[10px] text-slate-900 font-black uppercase tracking-widest block italic">Galerie détaillée ({galleryUrls.length}/4 photos)</label>
               <div className="grid grid-cols-2 gap-4">
                 {galleryUrls.map((url, index) => (
                   <div key={index} className="relative aspect-square rounded-[1.5rem] overflow-hidden group border border-slate-100 shadow-sm">
-                    <img src={url} className="w-full h-full object-cover" />
+                    <img src={url} className="w-full h-full object-cover" alt="" />
                     <button type="button" onClick={() => removeGalleryImage(index)} className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
                       <Trash2 size={12} />
                     </button>
@@ -147,29 +149,29 @@ export default function AjouterVoiture() {
 
             <div className="p-6 bg-blue-50/50 rounded-[2rem] border border-blue-100/50">
               <h4 className="text-blue-900 font-black text-[10px] uppercase mb-2 flex items-center gap-2">
-                <Lock size={14} /> Confidentialité Wotro
+                <Lock size={14} /> Publication Directe
               </h4>
-              <p className="text-blue-700/60 text-[10px] leading-relaxed font-bold uppercase">
-                L'adresse précise n'est révélée qu'une fois le paiement validé.
+              <p className="text-blue-700/60 text-[10px] leading-relaxed font-bold uppercase italic">
+                Votre véhicule sera visible immédiatement avec le badge de confiance après la publication.
               </p>
             </div>
           </div>
 
+          {/* COLONNE DÉTAILS */}
           <div className="space-y-5">
             <div className="space-y-4">
               <div className="bg-gray-50 p-5 rounded-[1.5rem] border border-gray-100">
-                <label className="text-[9px] text-gray-400 font-black uppercase mb-1 block tracking-widest">Nom du modèle</label>
+                <label className="text-[9px] text-gray-400 font-black uppercase mb-1 block tracking-widest italic">Nom du modèle</label>
                 <input 
-                  type="text" placeholder="Mercedes Classe G 2024"
+                  type="text" placeholder="Ex: Mercedes Classe G 63 AMG"
                   className="bg-transparent w-full outline-none text-slate-900 font-bold"
                   onChange={(e) => setCarData({...carData, name: e.target.value})}
                   required
                 />
               </div>
 
-              {/* NOUVEAU : SÉLECTEUR DE CATÉGORIE */}
               <div className="bg-gray-50 p-5 rounded-[1.5rem] border border-gray-100">
-                <label className="text-[9px] text-gray-400 font-black uppercase mb-1 block tracking-widest flex items-center gap-2">
+                <label className="text-[9px] text-gray-400 font-black uppercase mb-1 block tracking-widest flex items-center gap-2 italic">
                   <Layers size={10} /> Catégorie de véhicule
                 </label>
                 <select 
@@ -183,7 +185,7 @@ export default function AjouterVoiture() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-gray-50 p-5 rounded-[1.5rem] border border-gray-100">
-                  <label className="text-[9px] text-gray-400 font-black uppercase mb-1 block tracking-widest">Prix / Jour (FCFA)</label>
+                  <label className="text-[9px] text-gray-400 font-black uppercase mb-1 block tracking-widest italic">Prix / Jour (FCFA)</label>
                   <input 
                     type="number" placeholder="80000"
                     className="bg-transparent w-full outline-none text-slate-900 font-bold"
@@ -192,7 +194,7 @@ export default function AjouterVoiture() {
                   />
                 </div>
                 <div className="bg-gray-50 p-5 rounded-[1.5rem] border border-gray-100">
-                  <label className="text-[9px] text-gray-400 font-black uppercase mb-1 block tracking-widest">Commune</label>
+                  <label className="text-[9px] text-gray-400 font-black uppercase mb-1 block tracking-widest italic">Commune</label>
                   <select 
                     className="bg-transparent w-full outline-none text-slate-900 font-bold appearance-none cursor-pointer"
                     onChange={(e) => setCarData({...carData, location: e.target.value})}
@@ -204,9 +206,9 @@ export default function AjouterVoiture() {
               </div>
 
               <div className="bg-slate-900 p-5 rounded-[1.5rem] border border-slate-800 shadow-xl shadow-slate-200">
-                <label className="text-[9px] text-blue-400 font-black uppercase mb-1 block tracking-widest">Adresse précise (Privée)</label>
+                <label className="text-[9px] text-blue-400 font-black uppercase mb-1 block tracking-widest italic">Adresse précise (Privée)</label>
                 <input 
-                  type="text" placeholder="Riviera 3, Rue de la Paix"
+                  type="text" placeholder="Ex: Riviera 3, Rue du Lycée Français"
                   className="bg-transparent w-full outline-none text-white font-bold"
                   onChange={(e) => setCarData({...carData, exactAddress: e.target.value})}
                   required
@@ -236,14 +238,23 @@ export default function AjouterVoiture() {
                   </select>
                 </div>
               </div>
+
+              <div className="bg-gray-50 p-5 rounded-[1.5rem] border border-gray-100">
+                <label className="text-[9px] text-gray-400 font-black uppercase mb-1 block tracking-widest italic">Description libre</label>
+                <textarea 
+                  placeholder="Détails supplémentaires, options du véhicule..."
+                  className="bg-transparent w-full outline-none text-slate-900 font-bold text-xs min-h-[80px] resize-none"
+                  onChange={(e) => setCarData({...carData, description: e.target.value})}
+                />
+              </div>
             </div>
 
             <button 
               type="submit"
               disabled={loading}
-              className="w-full py-5 bg-blue-600 text-white font-black rounded-[1.5rem] hover:bg-slate-900 transition-all shadow-xl shadow-blue-100 flex items-center justify-center gap-3 uppercase text-[10px] tracking-widest disabled:opacity-50"
+              className="w-full py-5 bg-blue-600 text-white font-black rounded-[1.5rem] hover:bg-slate-900 transition-all shadow-xl shadow-blue-100 flex items-center justify-center gap-3 uppercase text-[10px] tracking-[0.2em] disabled:opacity-50 active:scale-95"
             >
-              {loading ? "Publication..." : "Publier l'annonce"} <Check size={18} />
+              {loading ? "Publication..." : "Lancer l'annonce immédiatement"} <Check size={18} />
             </button>
           </div>
         </form>

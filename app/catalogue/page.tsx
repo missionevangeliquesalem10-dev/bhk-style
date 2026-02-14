@@ -5,7 +5,7 @@ import { db } from "@/app/lib/firebase";
 import { collection, query, where, getDocs, orderBy, limit, onSnapshot } from "firebase/firestore";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Fuel, Gauge, Search, Star, Wallet, FilterX, X, ExternalLink, CarFront, ChevronDown } from "lucide-react";
+import { MapPin, Fuel, Gauge, Search, Star, Wallet, FilterX, X, ChevronDown, BadgeCheck } from "lucide-react";
 import Link from "next/link";
 
 function CatalogueContent() {
@@ -23,7 +23,10 @@ function CatalogueContent() {
   const [maxPrice, setMaxPrice] = useState(Number(searchParams.get("maxPrice")) || 500000);
 
   const communes = ["Toutes", "Abobo", "Adjamé", "Attécoubé", "Bingerville", "Cocody", "Koumassi", "Marcory", "Plateau", "Port-Bouët", "Songon", "Treichville", "Yopougon", "Anyama"];
-  const categories = ["Toutes", "Berline", "Suv/4x4", "Citadine", "Van/Minibus", "Pick-up", "Coupé / Sport", "Utilitaire"];
+  
+  // AJOUT DE "Voiture de luxe" DANS LES CATÉGORIES
+  const categories = ["Toutes", "Voiture de luxe", "Berline", "Suv/4x4", "Citadine", "Van/Minibus", "Pick-up", "Coupé / Sport", "Utilitaire"];
+  
   const priceRanges = [
     { label: "Tous les budgets", value: 500000 },
     { label: "Sous 30.000 F", value: 30000 },
@@ -69,15 +72,15 @@ function CatalogueContent() {
           <h1 className="text-3xl font-black text-slate-900 uppercase italic tracking-tighter">
             Voitures dans <span className="text-blue-600">Côte d'Ivoire</span>
           </h1>
-          <p className="text-slate-400 text-sm font-bold uppercase tracking-widest mt-2">
+          <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-2">
             {filteredCars.length} véhicules correspondent à votre recherche
           </p>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex flex-col lg:flex-row gap-8 items-start">
           
-          {/* BARRE LATÉRALE - FILTRES (GAUCHE) */}
-          <aside className="w-full lg:w-80 space-y-6">
+          {/* BARRE LATÉRALE - FILTRES (STICKY) */}
+          <aside className="w-full lg:w-80 lg:sticky lg:top-28 space-y-6">
             <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
               <h3 className="text-xs font-black uppercase tracking-[0.2em] text-blue-600 mb-8 flex items-center gap-2">
                 <Search size={14} /> Filtres
@@ -85,7 +88,7 @@ function CatalogueContent() {
 
               {/* Lieu */}
               <div className="mb-8">
-                <label className="text-[10px] font-black uppercase text-slate-400 block mb-4 tracking-widest">Localisation</label>
+                <label className="text-[10px] font-black uppercase text-slate-400 block mb-4 tracking-widest italic">Localisation</label>
                 <div className="relative">
                   <select 
                     value={filterCity} 
@@ -100,13 +103,13 @@ function CatalogueContent() {
 
               {/* Catégories (Type) */}
               <div className="mb-8">
-                <label className="text-[10px] font-black uppercase text-slate-400 block mb-4 tracking-widest">Type de véhicule</label>
-                <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-slate-400 block mb-4 tracking-widest italic">Type de véhicule</label>
+                <div className="space-y-1">
                   {categories.map(cat => (
                     <button
                       key={cat}
                       onClick={() => setFilterCategory(cat)}
-                      className={`w-full text-left px-5 py-3 rounded-xl text-[10px] font-bold uppercase transition-all ${filterCategory === cat ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'bg-transparent text-slate-500 hover:bg-slate-50'}`}
+                      className={`w-full text-left px-5 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${filterCategory === cat ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'bg-transparent text-slate-500 hover:bg-slate-50 hover:translate-x-1'}`}
                     >
                       {cat}
                     </button>
@@ -116,7 +119,7 @@ function CatalogueContent() {
 
               {/* Budget */}
               <div className="mb-8">
-                <label className="text-[10px] font-black uppercase text-slate-400 block mb-4 tracking-widest">Budget Max / J</label>
+                <label className="text-[10px] font-black uppercase text-slate-400 block mb-4 tracking-widest italic">Budget Max / J</label>
                 <div className="space-y-3">
                   {priceRanges.map(range => (
                     <label key={range.value} className="flex items-center gap-3 cursor-pointer group">
@@ -125,9 +128,9 @@ function CatalogueContent() {
                         name="price" 
                         checked={maxPrice === range.value}
                         onChange={() => setMaxPrice(range.value)}
-                        className="w-4 h-4 text-blue-600 border-slate-200 focus:ring-blue-500"
+                        className="w-4 h-4 text-blue-600 border-slate-200 focus:ring-blue-500 cursor-pointer"
                       />
-                      <span className="text-[10px] font-bold uppercase text-slate-600 group-hover:text-blue-600 transition-colors">{range.label}</span>
+                      <span className="text-[10px] font-black uppercase text-slate-600 group-hover:text-blue-600 transition-colors">{range.label}</span>
                     </label>
                   ))}
                 </div>
@@ -142,88 +145,92 @@ function CatalogueContent() {
             </div>
           </aside>
 
-          {/* GRILLE DE VOITURES (DROITE) */}
-          <main className="flex-1">
+          {/* LISTE DES VOITURES (DROITE) */}
+          <main className="flex-1 w-full">
             {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {[1, 2, 3, 4].map((i) => <div key={i} className="h-80 bg-white animate-pulse rounded-[2.5rem]" />)}
+              <div className="grid grid-cols-1 gap-6">
+                {[1, 2, 3].map((i) => <div key={i} className="h-64 bg-white animate-pulse rounded-[2.5rem]" />)}
               </div>
             ) : (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-8">
-                  <AnimatePresence mode="popLayout">
-                    {filteredCars.map((car) => (
-                      <motion.div 
-                        key={car.id} 
-                        layout 
-                        initial={{ opacity: 0, y: 20 }} 
-                        animate={{ opacity: 1, y: 0 }} 
-                        className="group bg-white rounded-[2.5rem] overflow-hidden border border-slate-100 hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.05)] transition-all duration-500"
-                      >
-                        <div className="flex flex-col sm:flex-row h-full">
-                          {/* Image */}
-                          <div className="relative w-full sm:w-56 h-56 sm:h-auto overflow-hidden">
-                            <img src={car.image} alt={car.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                            <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-xl">
-                               <p className="font-black text-[10px] text-blue-600 uppercase tracking-tighter">{car.category}</p>
-                            </div>
-                          </div>
-                          
-                          {/* Infos */}
-                          <div className="flex-1 p-6 flex flex-col justify-between">
-                            <div>
-                              <div className="flex justify-between items-start mb-2">
-                                <h3 className="text-lg font-black uppercase italic tracking-tighter text-slate-900">{car.name}</h3>
-                                <div className="flex items-center gap-1 text-yellow-500 font-black text-[10px] bg-yellow-50 px-2 py-1 rounded-lg">
-                                  <Star size={10} fill="currentColor" /> {car.reviewCount || 0}
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-2 text-slate-400 mb-4 font-black text-[9px] uppercase tracking-widest italic">
-                                <MapPin size={12} className="text-blue-500" /> {car.location}
-                              </div>
-                              
-                              <div className="flex gap-4 mb-6">
-                                <div className="flex items-center gap-1.5 text-slate-500">
-                                  <Gauge size={14} className="text-slate-300" />
-                                  <span className="text-[9px] font-bold uppercase">{car.transmission}</span>
-                                </div>
-                                <div className="flex items-center gap-1.5 text-slate-500">
-                                  <Fuel size={14} className="text-slate-300" />
-                                  <span className="text-[9px] font-bold uppercase">{car.fuel}</span>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="flex items-center justify-between pt-4 border-t border-slate-50">
-                              <div>
-                                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Prix / Jour</p>
-                                <p className="text-lg font-black text-slate-900">{car.price?.toLocaleString()} <span className="text-[10px] text-blue-600">FCFA</span></p>
-                              </div>
-                              <Link href={`/voiture/${car.id}`} className="bg-slate-900 text-white p-4 rounded-2xl hover:bg-blue-600 transition-all active:scale-90 shadow-lg shadow-slate-100">
-                                <ArrowRight size={18} />
-                              </Link>
-                            </div>
+              <div className="grid grid-cols-1 gap-8">
+                <AnimatePresence mode="popLayout">
+                  {filteredCars.map((car) => (
+                    <motion.div 
+                      key={car.id} 
+                      layout 
+                      initial={{ opacity: 0, y: 20 }} 
+                      animate={{ opacity: 1, y: 0 }} 
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      className="group bg-white rounded-[2.5rem] overflow-hidden border border-slate-100 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.08)] transition-all duration-500"
+                    >
+                      <div className="flex flex-col md:flex-row h-full min-h-[280px]">
+                        {/* Image */}
+                        <div className="relative w-full md:w-80 h-64 md:h-auto overflow-hidden">
+                          <img src={car.image} alt={car.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                          <div className="absolute top-6 left-6 bg-white/90 backdrop-blur-md px-4 py-2 rounded-2xl shadow-sm">
+                             <p className="font-black text-[9px] text-blue-600 uppercase tracking-widest">{car.category}</p>
                           </div>
                         </div>
-                      </motion.div>
-                    ))}
-                  </AnimatePresence>
-                </div>
+                        
+                        {/* Infos */}
+                        <div className="flex-1 p-8 flex flex-col justify-between">
+                          <div>
+                            <div className="flex justify-between items-start mb-2">
+                              <div className="flex items-center gap-2">
+                                <h3 className="text-2xl font-black uppercase italic tracking-tighter text-slate-900 leading-none">{car.name}</h3>
+                                {car.isValidated && (
+                                  <BadgeCheck size={20} className="text-blue-500" fill="currentColor" />
+                                )}
+                              </div>
+                              <div className="flex items-center gap-1.5 text-yellow-500 font-black text-[11px] bg-yellow-50 px-3 py-1.5 rounded-xl">
+                                <Star size={12} fill="currentColor" /> {car.reviewCount || 0}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 text-slate-400 mb-6 font-black text-[10px] uppercase tracking-widest italic">
+                              <MapPin size={14} className="text-blue-500" /> {car.location}
+                            </div>
+                            
+                            <div className="flex gap-6 mb-8">
+                              <div className="flex items-center gap-2 text-slate-500">
+                                <Gauge size={16} className="text-slate-300" />
+                                <span className="text-[10px] font-black uppercase tracking-tighter">{car.transmission}</span>
+                              </div>
+                              <div className="flex items-center gap-2 text-slate-500">
+                                <Fuel size={16} className="text-slate-300" />
+                                <span className="text-[10px] font-black uppercase tracking-tighter">{car.fuel}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex items-end justify-between pt-6 border-t border-slate-50">
+                            <div>
+                              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Tarif Journalier</p>
+                              <p className="text-2xl font-black text-slate-900">{car.price?.toLocaleString()} <span className="text-sm text-blue-600 font-black">FCFA</span></p>
+                            </div>
+                            <Link href={`/voiture/${car.id}`} className="bg-slate-900 text-white flex items-center gap-3 px-8 py-4 rounded-2xl hover:bg-blue-600 transition-all active:scale-95 shadow-xl shadow-slate-200 font-black text-[10px] uppercase tracking-widest">
+                              Réserver <ArrowRight size={18} />
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
 
                 {filteredCars.length === 0 && (
-                  <div className="text-center py-32 bg-white rounded-[3rem] border-2 border-dashed border-slate-100">
-                    <FilterX size={48} className="mx-auto mb-6 text-slate-200" />
-                    <h3 className="text-xl font-black uppercase italic text-slate-900">Aucun véhicule trouvé</h3>
-                    <p className="text-slate-400 text-xs font-bold uppercase mt-2">Essayez de modifier vos filtres à gauche</p>
+                  <div className="text-center py-40 bg-white rounded-[4rem] border-2 border-dashed border-slate-100">
+                    <FilterX size={60} className="mx-auto mb-6 text-slate-200" />
+                    <h3 className="text-2xl font-black uppercase italic text-slate-900">Aucun véhicule trouvé</h3>
+                    <p className="text-slate-400 text-[10px] font-black uppercase mt-2 tracking-widest">Essayez de modifier vos filtres à gauche</p>
                   </div>
                 )}
-              </>
+              </div>
             )}
           </main>
         </div>
       </div>
 
-      {/* MODAL AD (PUBS) - RESTE IDENTIQUE */}
+      {/* MODAL AD (PUBS) */}
       <AnimatePresence>
         {showAd && activeAd && (
           <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-md">
@@ -231,11 +238,11 @@ function CatalogueContent() {
               <button onClick={() => setShowAd(false)} className="absolute top-4 right-4 z-10 p-3 bg-white/20 backdrop-blur-xl text-white rounded-full"><X size={20} /></button>
               <div className="relative aspect-square">
                 <img src={activeAd.imageUrl} className="w-full h-full object-cover" alt="" />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent" />
-                <div className="absolute bottom-0 p-8 w-full">
-                   <h2 className="text-2xl font-black text-white uppercase italic mb-4">{activeAd.company}</h2>
-                   <div className="flex gap-2">
-                     <a href={activeAd.link} target="_blank" className="flex-1 py-4 bg-blue-600 text-white text-center rounded-2xl font-black text-[10px] uppercase">Découvrir</a>
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-transparent to-transparent" />
+                <div className="absolute bottom-0 p-10 w-full">
+                   <h2 className="text-3xl font-black text-white uppercase italic tracking-tighter mb-4">{activeAd.company}</h2>
+                   <div className="flex gap-3">
+                     <a href={activeAd.link} target="_blank" className="flex-1 py-4 bg-blue-600 text-white text-center rounded-2xl font-black text-[10px] uppercase tracking-widest">Découvrir</a>
                      <button onClick={() => setShowAd(false)} className="px-6 py-4 bg-white/10 text-white rounded-2xl font-black text-[10px] uppercase border border-white/20">Fermer</button>
                    </div>
                 </div>
@@ -254,7 +261,7 @@ const ArrowRight = ({ size }: { size: number }) => (
 
 export default function Catalogue() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center font-black uppercase text-xs animate-pulse">Chargement du catalogue...</div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center font-black uppercase text-[10px] animate-pulse italic tracking-[0.3em]">Ouverture du garage...</div>}>
       <CatalogueContent />
     </Suspense>
   );
